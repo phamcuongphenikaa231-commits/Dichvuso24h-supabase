@@ -156,22 +156,35 @@ export function ServiceDetailView({ service: initialService }: { service: Servic
   }, [minQty, maxQty]);
 
   useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem('dv24h_pending_purchase');
-      if (!raw) return;
-      const draft = JSON.parse(raw) as {
-        serviceId?: string;
-        quantity?: number;
-        targetInput?: string;
-        note?: string;
-      };
-      if (draft.serviceId !== service.id) return;
-      if (typeof draft.quantity === 'number') setQuantity(draft.quantity);
-      if (typeof draft.targetInput === 'string') setTargetInput(draft.targetInput);
-      if (typeof draft.note === 'string') setNote(draft.note);
-    } catch {
-      sessionStorage.removeItem('dv24h_pending_purchase');
-    }
+    const timer = window.setTimeout(() => {
+      try {
+        const raw = sessionStorage.getItem('dv24h_pending_purchase');
+        if (!raw) return;
+
+        const draft = JSON.parse(raw) as {
+          serviceId?: string;
+          quantity?: number;
+          targetInput?: string;
+          note?: string;
+        };
+
+        if (draft.serviceId !== service.id) return;
+
+        if (typeof draft.quantity === 'number') {
+          setQuantity(draft.quantity);
+        }
+        if (typeof draft.targetInput === 'string') {
+          setTargetInput(draft.targetInput);
+        }
+        if (typeof draft.note === 'string') {
+          setNote(draft.note);
+        }
+      } catch {
+        sessionStorage.removeItem('dv24h_pending_purchase');
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [service.id]);
 
   useEffect(() => {
